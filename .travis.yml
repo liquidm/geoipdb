@@ -1,0 +1,11 @@
+language: ruby
+rvm:
+- jruby
+- 2.1.0
+- 2.0.0
+- 1.9.3
+notifications:
+  email: false
+  hipchat:
+    rooms:
+      secure: RFtqDVDCk3BfP9yrVgToifCEbtEljndNWX61YCtsFXuCYihPODfii33HqEJ/CCZARuSMpomezOWsHP10+gT2VgRG8nfSQ6AIPLR1H2cs4uFtNN3WKd3I+LDF/GDua4rfEY8g4tZWFYTLbxgtpxD5rrGL6/ASLdAlKy33i/gTuPM=

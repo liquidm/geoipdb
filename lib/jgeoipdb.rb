@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'java'
 require File.expand_path('../geoipdb.jar', __FILE__)
 
