@@ -29,15 +29,13 @@ class GeoIpDb
 
   def build_ip_information_object(range, city, isp)
     info = IpInformation.new
-
     info.country_iso_code = city.country_iso2
     info.city_name = city.name
     info.city_code = city.city_code
     info.lng = city.lng
     info.lat = city.lat
     info.is_mobile  = range.is_mobile
-    info.isp_name = isp && isp.to_sym
-
+    info.isp_name = isp ? isp.to_sym : :"?"
     info
   end
 
