@@ -1,4 +1,3 @@
-require 'rbconfig'
 require 'java'
 require File.expand_path('../geoipdb.jar', __FILE__)
 
@@ -6,7 +5,7 @@ class GeoIpDb
 
   def self.init(cities_file, ranges_file, cache_file)
     self.new(cities_file, ranges_file, cache_file)
-  rescue java.io.FileNotFoundException => e
+  rescue java.io.FileNotFoundException
     return nil
   end
 
@@ -35,7 +34,7 @@ class GeoIpDb
     info.lng = city.lng
     info.lat = city.lat
     info.is_mobile  = range.is_mobile
-    info.isp_name = isp ? isp.to_sym : :"?"
+    info.isp_name = isp && isp.to_sym
     info
   end
 

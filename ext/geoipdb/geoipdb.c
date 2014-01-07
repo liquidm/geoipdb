@@ -74,7 +74,7 @@ VALUE build_ip_information_object(IpRange *range, City *city, char* isp) {
   rb_ivar_set(ip_information, rb_intern("@lng"), rb_float_new(city->lng) );
   rb_ivar_set(ip_information, rb_intern("@lat"), rb_float_new(city->lat) );
   rb_ivar_set(ip_information, rb_intern("@is_mobile"), range->is_mobile == 1 ? Qtrue : Qfalse );
-  rb_ivar_set(ip_information, rb_intern("@isp_name"), isp == NULL || strcmp(isp, "?") == 0 ? Qnil : ID2SYM( rb_intern(isp) ) );
+  rb_ivar_set(ip_information, rb_intern("@isp_name"), isp == NULL ? Qnil : ID2SYM( rb_intern(isp) ) );
 
   return ip_information;
 }

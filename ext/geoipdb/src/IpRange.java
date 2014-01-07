@@ -12,11 +12,8 @@ public class IpRange implements Comparable<IpRange>
         this.to = ipToLong(rangeValues[1]);
         this.isMobile = conTypeToBool(rangeValues[2]);
         this.cityCode = Integer.parseInt(rangeValues[3]);
-
-        if (!rangeValues[4].equals("?")) {
-            // Use only the first 100 chars to be compliant with the c implementation
-            this.ispName = rangeValues[4].length() > 100 ? rangeValues[4].substring(0, 100) : rangeValues[4];
-        }
+        // Use only the first 100 chars to be compliant with the c implementation
+        this.ispName = rangeValues[4].length() > 100 ? rangeValues[4].substring(0, 100) : rangeValues[4];
     }
 
     public IpRange(String from, String to)

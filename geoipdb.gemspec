@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "geoipdb"
-  spec.version       = "0.5.6"
+  spec.version       = "0.5.7"
   spec.authors       = ["LiquidM, Inc."]
   spec.email         = ["opensource@liquidm.com"]
   spec.description   = "Fast GeoIpDb implementation for Ruby"
