@@ -5,7 +5,7 @@ class GeoIpDb
 
   def self.init(cities_file, ranges_file, cache_file)
     self.new(cities_file, ranges_file, cache_file)
-  rescue java.io.FileNotFoundException => e
+  rescue java.io.FileNotFoundException
     return nil
   end
 
@@ -28,7 +28,6 @@ class GeoIpDb
 
   def build_ip_information_object(range, city, isp)
     info = IpInformation.new
-
     info.country_iso_code = city.country_iso2
     info.city_name = city.name
     info.city_code = city.city_code
@@ -36,7 +35,6 @@ class GeoIpDb
     info.lat = city.lat
     info.is_mobile  = range.is_mobile
     info.isp_name = isp && isp.to_sym
-
     info
   end
 

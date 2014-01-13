@@ -1,10 +1,9 @@
-source :rubygems
+source "https://rubygems.org"
+
+gemspec
+
+gem 'liquid-ext'
 
 group :development, :test do
-  gem 'bundler'
-  gem 'rake'
-  gem 'rake-compiler'
-  gem 'rspec'
-  gem 'simplecov'
-  gem 'yard'
+  gem 'liquid-development'
 end
