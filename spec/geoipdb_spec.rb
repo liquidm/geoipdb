@@ -54,8 +54,6 @@ describe GeoIpDb do
     @db.information_for_ip("1.2.1.1").isp_name.should == :"?"
   end
 
-  it "should write and read the cachefile correctly"
-
   after :each do
     File.unlink CACHE_FILE if File.exist? CACHE_FILE
   end
