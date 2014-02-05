@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,19 +11,65 @@ public class GeoIpDb
     HashMap<Integer, City> cities;
     ArrayList<String> isps;
     ArrayList<IpRange> ranges;
+    
+    private volatile boolean loaded = false;
+    private IOException exceptionReadingCVS = null;
 
     public GeoIpDb(String citiesFileName, String rangesFileName) throws FileNotFoundException
     {
         cities = new HashMap<Integer, City>();
         isps = new ArrayList<String>();
         ranges = new ArrayList<IpRange>();
+        
+        final CsvReader citiesCvsReader = new CsvReader(citiesFileName);
+        final CsvReader rangesCvsReader = new CsvReader(rangesFileName);
 
-        readCitiesCSV(citiesFileName);
-        readRangesCSV(rangesFileName);
+        Thread t = new Thread("IPDB CVS readers") {
+        	@Override
+        	public void run() {
+        		readCVSs(citiesCvsReader, rangesCvsReader);
+        	};
+        };
+        t.setDaemon(true);
+        t.start();
+    }
+    
+	private void readCVSs(CsvReader citiesCvsReader, CsvReader rangesCvsReader) {
+		try {
+			readCitiesCSV(citiesCvsReader);
+			readRangesCSV(rangesCvsReader);
+		} catch (IOException e) {
+			exceptionReadingCVS = e;
+		} finally {
+			try {citiesCvsReader.close();} catch (IOException e) {}
+			try {rangesCvsReader.close();} catch (IOException e) {}
+		}
+		synchronized (GeoIpDb.this) {
+			loaded = true;
+			GeoIpDb.this.notifyAll();
+		}
+	}
+    
+    private void ensureLoaded() {
+    	if (!loaded) {
+    		synchronized (this) {
+    			if (!loaded) {
+    				try {
+						wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException();
+					}
+    			}
+			}
+    	}
+    	if (exceptionReadingCVS != null) {
+    		throw new RuntimeException("Asynchronous exception in CVS readers thread", exceptionReadingCVS);
+    	}
     }
 
     public IpRange findRangeForIp(String ip)
     {
+    	ensureLoaded();
         if (ranges.isEmpty()) {
             System.out.println("ERROR: DB has no ranges data. Can not search!");
             return null;
@@ -40,6 +86,7 @@ public class GeoIpDb
 
     public City findCityForIpRange(IpRange range)
     {
+    	ensureLoaded();
         if (range == null) {
             System.out.println("Cannot find city for no given range, right?");
             return null;
@@ -58,12 +105,12 @@ public class GeoIpDb
 
     public ArrayList<IpRange> get_ranges()
     {
+    	ensureLoaded();
         return ranges;
     }
 
-    private void readCitiesCSV(String file_name) throws FileNotFoundException
+    private void readCitiesCSV(CsvReader reader) throws IOException
     {
-        CsvReader reader = new CsvReader(file_name);
         String[] line = null;
         City city = null;
 
@@ -79,9 +126,8 @@ public class GeoIpDb
         }
     }
 
-    private void readRangesCSV(String file_name) throws FileNotFoundException
+    private void readRangesCSV(CsvReader reader) throws IOException
     {
-        CsvReader reader = new CsvReader(file_name);
         String[] line = null;
 
         reader.readLine(); // skip first line
@@ -98,4 +144,5 @@ public class GeoIpDb
             ranges.add(new IpRange(line));
         }
     }
+
 }

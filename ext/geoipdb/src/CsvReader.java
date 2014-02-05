@@ -26,4 +26,8 @@ public class CsvReader
             return null;
         }
     }
+
+	public void close() throws IOException {
+		reader.close();
+	}
 }
