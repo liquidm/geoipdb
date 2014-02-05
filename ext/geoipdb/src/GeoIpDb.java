@@ -15,30 +15,40 @@ public class GeoIpDb
     private volatile boolean loaded = false;
     private IOException exceptionReadingCVS = null;
 
-    public GeoIpDb(final String citiesFileName, final String rangesFileName) throws FileNotFoundException
+    public GeoIpDb(String citiesFileName, String rangesFileName) throws FileNotFoundException
     {
         cities = new HashMap<Integer, City>();
         isps = new ArrayList<String>();
         ranges = new ArrayList<IpRange>();
+        
+        final CsvReader citiesCvsReader = new CsvReader(citiesFileName);
+        final CsvReader rangesCvsReader = new CsvReader(rangesFileName);
 
         Thread t = new Thread("IPDB CVS readers") {
         	@Override
         	public void run() {
-        		try {
-					readCitiesCSV(citiesFileName);
-					readRangesCSV(rangesFileName);
-				} catch (IOException e) {
-					exceptionReadingCVS = e;
-				}
-        		synchronized (GeoIpDb.this) {
-        			loaded = true;
-        			notifyAll();
-				}
+        		readCVSs(citiesCvsReader, rangesCvsReader);
         	};
         };
         t.setDaemon(true);
         t.start();
     }
+    
+	private void readCVSs(CsvReader citiesCvsReader, CsvReader rangesCvsReader) {
+		try {
+			readCitiesCSV(citiesCvsReader);
+			readRangesCSV(rangesCvsReader);
+		} catch (IOException e) {
+			exceptionReadingCVS = e;
+		} finally {
+			try {citiesCvsReader.close();} catch (IOException e) {}
+			try {rangesCvsReader.close();} catch (IOException e) {}
+		}
+		synchronized (GeoIpDb.this) {
+			loaded = true;
+			GeoIpDb.this.notifyAll();
+		}
+	}
     
     private void ensureLoaded() {
     	if (!loaded) {
@@ -99,49 +109,40 @@ public class GeoIpDb
         return ranges;
     }
 
-    private void readCitiesCSV(String file_name) throws IOException
+    private void readCitiesCSV(CsvReader reader) throws IOException
     {
-        CsvReader reader = new CsvReader(file_name);
-        try {
-	        String[] line = null;
-	        City city = null;
-	
-	        reader.readLine(); // skip first line
-	
-	        while ((line = reader.readLine()) != null) {
-	            if (cities.size() >= MAX_CITY_COUNT){
-	                System.out.format("ERROR: MAX_CITY_COUNT = %d limit reached - mek it bigger  :-(\n", MAX_CITY_COUNT);
-	                return;
-	            }
-	            city = new City(line);
-	            cities.put(city.cityCode, city);
-	        }
-        } finally {
-        	reader.close();
+        String[] line = null;
+        City city = null;
+
+        reader.readLine(); // skip first line
+
+        while ((line = reader.readLine()) != null) {
+            if (cities.size() >= MAX_CITY_COUNT){
+                System.out.format("ERROR: MAX_CITY_COUNT = %d limit reached - mek it bigger  :-(\n", MAX_CITY_COUNT);
+                return;
+            }
+            city = new City(line);
+            cities.put(city.cityCode, city);
         }
     }
 
-    private void readRangesCSV(String file_name) throws IOException
+    private void readRangesCSV(CsvReader reader) throws IOException
     {
-        CsvReader reader = new CsvReader(file_name);
-        try {
-	        String[] line = null;
-	
-	        reader.readLine(); // skip first line
-	
-	        while ((line = reader.readLine()) != null) {
-	            if (line.length < 5)
-	                continue;
-	
-	            if (ranges.size() >= MAX_RANGE_COUNT){
-	                System.out.format("ERROR: MAX_RANGE_COUNT = %d limit reached - mek it bigger  :-(\n", MAX_RANGE_COUNT);
-	                return;
-	            }
-	
-	            ranges.add(new IpRange(line));
-	        }
-        } finally {
-        	reader.close();
+        String[] line = null;
+
+        reader.readLine(); // skip first line
+
+        while ((line = reader.readLine()) != null) {
+            if (line.length < 5)
+                continue;
+
+            if (ranges.size() >= MAX_RANGE_COUNT){
+                System.out.format("ERROR: MAX_RANGE_COUNT = %d limit reached - mek it bigger  :-(\n", MAX_RANGE_COUNT);
+                return;
+            }
+
+            ranges.add(new IpRange(line));
         }
     }
+
 }
