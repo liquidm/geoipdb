@@ -1,8 +1,6 @@
-source "https://rubygems.org"
+source "http://rubygems.org"
 
 gemspec
-
-gem 'liquid-ext'
 
 group :development, :test do
   gem 'liquid-development'

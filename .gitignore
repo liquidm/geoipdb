@@ -5,14 +5,6 @@
 Gemfile.lock
 coverage
 doc
-ext/Makefile
-ext/geoipdb/Makefile
-ext/geoipdb/geoipdb.bundle
-ext/geoipdb/geoipdb.o
-ext/geoipdb/ipdb.o
-ext/geoipdb/test
-ext/geoipdb/test.o
-lib/geoipdb.jar
 pkg
 rdoc
 tags

@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class GeoIpDb
+public class IPDB
 {
     private static final int MAX_CITY_COUNT = 1000000;
     private static final int MAX_RANGE_COUNT = 10000000;
@@ -12,7 +12,7 @@ public class GeoIpDb
     ArrayList<String> isps;
     ArrayList<IpRange> ranges;
 
-    public GeoIpDb(String citiesFileName, String rangesFileName) throws FileNotFoundException
+    public IPDB(String citiesFileName, String rangesFileName) throws FileNotFoundException
     {
         cities = new HashMap<Integer, City>();
         isps = new ArrayList<String>();
