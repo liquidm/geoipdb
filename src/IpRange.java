@@ -1,3 +1,6 @@
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class IpRange implements Comparable<IpRange>
 {
     long from;
@@ -20,6 +23,18 @@ public class IpRange implements Comparable<IpRange>
     {
         this.from = ipToLong(from);
         this.to = ipToLong(to);
+    }
+
+    public IpRange(byte[] from, byte[] to)
+    {
+        this.from = ipToLong(from);
+        this.to = ipToLong(to);
+    }
+
+    public IpRange(byte[] from)
+    {
+        this.from = ipToLong(from);
+        this.to = ipToLong("0");
     }
 
     public int getCityCode()
@@ -59,14 +74,19 @@ public class IpRange implements Comparable<IpRange>
 
     private long ipToLong(String ip)
     {
-        long result = 0;
-
-        if (!(ip == null || ip.equals(""))) {
-            for (String octet : ip.split("\\.")) {
-                result = (result << 8) | Integer.parseInt(octet);
-            }
+        try {
+            return ipToLong(InetAddress.getByName(ip).getAddress());
+        } catch (UnknownHostException e) {
+            return 0;
         }
+    }
 
+    private long ipToLong(byte[] ip)
+    {
+        long result = 0;
+        for (byte octet : ip) {
+            result = (result << 8) | (octet & 0xFF);
+        }
         return result;
     }
 

@@ -1,6 +1,7 @@
 require 'liquid/boot'
 
 require 'fileutils'
+require 'open-uri'
 require 'singleton'
 require 'uri'
 require 'zlib'
@@ -45,31 +46,34 @@ class IPDB
 
   def update!(base_url)
     return nil if @initialized
-    start = Time.now.to_f
+    @start = Time.now.to_f
     @base_url = base_url
     @initialized = true
 
     $log.info("ipdb:load", cache_path: @cache_path)
     FileUtils.mkdir_p(@cache_path)
 
-    updating = false
+    @updating = false
     if !uptodate?
-      updating = true
+      @updating = true
       $log.info("ipdb:init", update: true)
       download_update
     end
 
+    load_data_files
+  end
+
+  def load_data_files
     files = DATA_FILES.map { |file_name| File.join(@cache_path, file_name) }
     self.load(*files)
-
     self_test
-    make_backup if updating
-    $log.info("ipdb:init", rt: Time.now.to_f - start)
+    make_backup if @updating
+    $log.info("ipdb:init", rt: Time.now.to_f - @start)
   rescue IPDBError => e
     $log.exception(e)
     $log.info("ipdb:init", revert: true)
     restore_backup
-    init_extension
+    load_data_files
     self_test
   end
 
@@ -166,9 +170,9 @@ class IPDB
 
   def self_test
     {
-      '10.0.0.1'      => nil,
-      '127.0.0.1'     => nil,
-      '192.168.1.1'   => nil,
+      '10.0.0.1'      => '--',
+      '127.0.0.1'     => '--',
+      '192.168.1.1'   => '--',
       '93.219.159.76' => 'de',
       '91.44.76.101'  => 'de',
       '82.113.100.1'  => 'de',
