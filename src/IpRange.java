@@ -19,12 +19,6 @@ public class IpRange implements Comparable<IpRange>
         this.ispName = rangeValues[4].length() > 100 ? rangeValues[4].substring(0, 100) : rangeValues[4];
     }
 
-    public IpRange(String from, String to)
-    {
-        this.from = ipToLong(from);
-        this.to = ipToLong(to);
-    }
-
     public IpRange(byte[] from, byte[] to)
     {
         this.from = ipToLong(from);
@@ -34,7 +28,7 @@ public class IpRange implements Comparable<IpRange>
     public IpRange(byte[] from)
     {
         this.from = ipToLong(from);
-        this.to = ipToLong("0");
+        this.to = 0;
     }
 
     public int getCityCode()

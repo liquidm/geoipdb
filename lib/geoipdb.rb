@@ -7,6 +7,7 @@ require 'uri'
 require 'zlib'
 
 java_import 'java.lang.NumberFormatException'
+java_import 'java.net.InetAddress'
 
 require File.expand_path('../geoipdb.jar', __FILE__)
 
@@ -79,6 +80,7 @@ class IPDB
 
   def lookup(ip)
     return nil unless @db
+    ip = InetAddress.get_by_name(ip).address if ip.is_a?(String)
     range = @db.find_range_for_ip(ip)
     return nil unless range
     city = @db.find_city_for_ip_range(range)

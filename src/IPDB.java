@@ -19,12 +19,6 @@ public class IPDB
         readRangesCSV(rangesFileName);
     }
 
-    public IpRange findRangeForIp(String ip)
-        throws UnknownHostException
-    {
-        return findRangeForIp(InetAddress.getByName(ip).getAddress());
-    }
-
     public IpRange findRangeForIp(byte[] ip)
     {
         IpRange search = new IpRange(ip);
